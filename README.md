@@ -25,25 +25,74 @@ package main
 
 import (
     "context"
+    "encoding/json"
+    "fmt"
     "github.com/mandocaesar/mediator/pkg/mediator"
 )
 
 func main() {
-    // Get mediator instance
+    // Get singleton mediator instance
     m := mediator.GetMediator()
 
-    // Subscribe to events
-    m.Subscribe("user.created", func(ctx context.Context, event mediator.Event) error {
-        // Handle the event
+    // Subscribe to product events
+    m.Subscribe("product.created", func(ctx context.Context, event mediator.Event) error {
+        // Convert payload to pretty JSON for demonstration
+        payload, _ := json.MarshalIndent(event.Payload, "", "  ")
+        
+        fmt.Printf("\nReceived product.created event:\n")
+        fmt.Printf("Event Name: %s\n", event.Name)
+        fmt.Printf("Payload:\n%s\n", string(payload))
+        
+        // Simulate some processing
+        if product, ok := event.Payload.(map[string]interface{}); ok {
+            fmt.Printf("\nProcessing product: %s\n", product["name"])
+            fmt.Printf("Price: $%.2f\n", product["price"])
+        }
+        
+        return nil
+    })
+
+    // Subscribe to another event type to demonstrate multiple handlers
+    m.Subscribe("product.updated", func(ctx context.Context, event mediator.Event) error {
+        fmt.Printf("\nProduct update event received: %v\n", event.Name)
         return nil
     })
 
     // Publish an event
     event := mediator.Event{
-        Name:    "user.created",
-        Payload: map[string]interface{}{"id": "123", "name": "John Doe"},
+        Name: "product.created",
+        Payload: map[string]interface{}{
+            "id":          "123",
+            "name":        "Premium Coffee Maker",
+            "price":       99.99,
+            "category":    "Appliances",
+            "created_at":  "2025-05-13T21:57:56+07:00",
+        },
     }
-    m.Publish(context.Background(), event)
+    
+    fmt.Println("\nPublishing product.created event...")
+    if err := m.Publish(context.Background(), event); err != nil {
+        fmt.Printf("Error publishing event: %v\n", err)
+        return
+    }
+    
+    // Example output:
+    //
+    // Publishing product.created event...
+    //
+    // Received product.created event:
+    // Event Name: product.created
+    // Payload:
+    // {
+    //   "category": "Appliances",
+    //   "created_at": "2025-05-13T21:57:56+07:00",
+    //   "id": "123",
+    //   "name": "Premium Coffee Maker",
+    //   "price": 99.99
+    // }
+    //
+    // Processing product: Premium Coffee Maker
+    // Price: $99.99
 }
 ```
 
