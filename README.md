@@ -1,103 +1,145 @@
-# Golang Mediator Library
+# Go Mediator Pattern Implementation
 
-## Overview
-A lightweight, thread-safe mediator library for Golang that implements an event-driven communication pattern. This library enables loose coupling between components through event-based interactions, making it ideal for building scalable and maintainable applications.
+A lightweight, thread-safe mediator library for Go that implements the mediator pattern with event-driven communication. This library provides a robust solution for decoupling components in your application through event-based interactions.
 
 ## Features
-- Thread-safe event publishing and subscription
-- Singleton mediator pattern for global access
-- Context support for cancellation and timeouts
-- Flexible event payload system
-- Comprehensive error handling
-- Event persistence with Redis extension
-- 100% test coverage
 
-## Project Structure
-```
-├── pkg/
-│   └── mediator/         # Core mediator package
-│       ├── mediator.go   # Main mediator implementation
-│       ├── mediator_test.go
-│       ├── event_store.go # Event storage interface
-│       └── extension/    # Extensions
-│           └── redis/    # Redis event storage
-├── example/             # Example implementation
-│   ├── domain/         # Domain models
-│   │   ├── product/    # Product domain
-│   │   └── sku/       # SKU domain
-│   ├── repository/    # Data access layer
-│   ├── usecase/      # Business logic
-│   └── main.go       # Example application
-└── Makefile          # Build and test automation
-```
+- 🔒 Thread-safe event publishing and subscription
+- 🌟 Singleton mediator pattern for global access
+- ⚡ Asynchronous event handling
+- 🔄 Multiple event store implementations (Redis, PostgreSQL)
+- 📦 Easy-to-use API
+- 🧪 High test coverage
+- 📝 Comprehensive documentation
 
 ## Installation
-```bash
-go get github.com/yourusername/mediator
-```
-
-## Usage
-
-### Basic Usage
-```go
-// Get the global mediator instance
-med := mediator.GetMediator()
-
-// Subscribe to events
-med.Subscribe("product.created", func(ctx context.Context, event mediator.Event) error {
-    // Handle event
-    return nil
-})
-
-// Publish events
-med.Publish(ctx, mediator.Event{
-    Name:    "product.created",
-    Payload: product,
-})
-```
-
-### Example Implementation
-```go
-// Create use cases with repositories
-productUseCase := usecase.NewProductUseCase(
-    productRepo,
-    productDetailRepo,
-)
-
-// Handle product creation
-product, err := productUseCase.CreateProduct(
-    ctx,
-    "Sample Product",
-    "Product description",
-    99.99,
-)
-```
-
-## Testing
-The project includes comprehensive tests with 100% coverage. Use the following make targets:
 
 ```bash
-# Run all tests
-make test
-
-# Run tests with verbose output
-make test-v
-
-# Test specific package
-make test-pkg pkg=./pkg/mediator
-
-# Run tests with coverage report
-make test-cover
-
-# Run usecase-specific coverage
-make test-cover-usecase
-
-# Clean test cache
-make test-clean
+go get github.com/mandocaesar/mediator
 ```
 
-## Event Types
-The library supports various event types:
+## Quick Start
+
+```go
+package main
+
+import (
+    "context"
+    "github.com/mandocaesar/mediator/pkg/mediator"
+)
+
+func main() {
+    // Get mediator instance
+    m := mediator.GetMediator()
+
+    // Subscribe to events
+    m.Subscribe("user.created", func(ctx context.Context, event mediator.Event) error {
+        // Handle the event
+        return nil
+    })
+
+    // Publish an event
+    event := mediator.Event{
+        Name:    "user.created",
+        Payload: map[string]interface{}{"id": "123", "name": "John Doe"},
+    }
+    m.Publish(context.Background(), event)
+}
+```
+
+## Event Store Support
+
+### Redis Event Store
+
+```go
+import (
+    "github.com/go-redis/redis/v8"
+    "github.com/mandocaesar/mediator/pkg/mediator"
+    redisstore "github.com/mandocaesar/mediator/pkg/mediator/extension/redis"
+)
+
+// Create Redis client
+client := redis.NewClient(&redis.Options{
+    Addr: "localhost:6379",
+})
+
+// Create event store
+store := redisstore.NewEventStore(client, redisstore.DefaultConfig())
+
+// Set event store in mediator
+m := mediator.GetMediator()
+m.SetEventStore(store)
+```
+
+### PostgreSQL Event Store
+
+```go
+import (
+    "database/sql"
+    "github.com/mandocaesar/mediator/pkg/mediator"
+    postgresstore "github.com/mandocaesar/mediator/pkg/mediator/extension/postgres"
+)
+
+// Create PostgreSQL connection
+db, _ := sql.Open("postgres", "postgres://user:pass@localhost:5432/dbname")
+
+// Create event store
+store, _ := postgresstore.NewEventStore(db, postgresstore.DefaultConfig())
+
+// Set event store in mediator
+m := mediator.GetMediator()
+m.SetEventStore(store)
+```
+
+## Project Structure
+
+```
+├── pkg/
+│   └── mediator/           # Core mediator package
+│       ├── mediator.go     # Main mediator implementation
+│       ├── event_store.go  # Event storage interface
+│       └── extension/      # Event store implementations
+│           ├── redis/      # Redis event store
+│           └── postgres/   # PostgreSQL event store
+└── example/               # Example implementations
+    ├── example-app/      # Full application example
+    ├── example-redis/    # Redis example
+    └── example-postgres/ # PostgreSQL example
+```
+
+## Examples
+
+The repository includes several examples:
+
+1. **Full Application Example** (`example/example-app/`): Demonstrates a complete application using the mediator pattern with domain-driven design.
+2. **Redis Example** (`example/example-redis/`): Shows how to use the mediator with Redis event store.
+3. **PostgreSQL Example** (`example/example-postgres/`): Shows how to use the mediator with PostgreSQL event store.
+
+## Running Examples
+
+Each example includes a Docker Compose file for easy setup:
+
+```bash
+# Redis Example
+cd example/example-redis
+docker-compose up
+
+# PostgreSQL Example
+cd example/example-postgres
+docker-compose up
+
+# Full Application Example
+cd example/example-app
+docker-compose up
+```
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 - `product.created`: Triggered when a new product is created
 - `product.updated`: Triggered when a product is updated
