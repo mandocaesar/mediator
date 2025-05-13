@@ -200,19 +200,6 @@ cd example/example-app
 docker-compose up
 ```
 
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-- `product.created`: Triggered when a new product is created
-- `product.updated`: Triggered when a product is updated
-- `sku.created`: Triggered when a new SKU is created
-- `sku.updated`: Triggered when an SKU is updated
-
 ## Error Handling
 The library provides comprehensive error handling:
 
