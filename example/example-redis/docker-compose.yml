@@ -1,0 +1,13 @@
+version: '3.8'
+services:
+  app:
+    build: .
+    depends_on:
+      - redis
+    environment:
+      - REDIS_ADDR=redis:6379
+    command: ["./app"]
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"

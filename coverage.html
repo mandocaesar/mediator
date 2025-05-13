@@ -1,0 +1,441 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>usecase: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">github.com/yourusername/mediator/example/usecase/product_detail_usecase.go (100.0%)</option>
+				
+				<option value="file1">github.com/yourusername/mediator/example/usecase/product_usecase.go (100.0%)</option>
+				
+				<option value="file2">github.com/yourusername/mediator/example/usecase/sku_usecase.go (100.0%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package usecase
+
+import (
+        "context"
+        "fmt"
+
+        "github.com/yourusername/mediator/example/domain/product"
+        "github.com/yourusername/mediator/example/repository"
+        "github.com/yourusername/mediator/pkg/mediator"
+)
+
+// ProductDetailUseCase handles business logic for product detail-related operations
+type ProductDetailUseCase struct {
+        productDetailRepo repository.ProductDetailRepository
+        mediator          *mediator.Mediator
+}
+
+// NewProductDetailUseCase creates a new ProductDetailUseCase
+func NewProductDetailUseCase(
+        productDetailRepo repository.ProductDetailRepository,
+) *ProductDetailUseCase <span class="cov8" title="1">{
+        return &amp;ProductDetailUseCase{
+                productDetailRepo: productDetailRepo,
+                mediator:          mediator.GetMediator(),
+        }
+}</span>
+
+// HandleProductUpdate handles product update events to update or create product details
+func (uc *ProductDetailUseCase) HandleProductUpdate(ctx context.Context, event mediator.Event) error <span class="cov8" title="1">{
+        product, ok := event.Payload.(*product.Product)
+        if !ok </span><span class="cov8" title="1">{
+                return fmt.Errorf("invalid payload type for product update event")
+        }</span>
+
+        <span class="cov8" title="1">fmt.Println("[UPDATE PRODUCT HANDLED]", event.Payload)
+
+        // Find existing product details or create default
+        existingDetails, err := uc.productDetailRepo.FindByProductID(ctx, product.ID)
+        if err != nil </span><span class="cov8" title="1">{
+                // If not found, create default details
+                existingDetails = product.CreateDefaultProductDetail()
+        }</span>
+
+        // Update product details with default or existing details
+        <span class="cov8" title="1">existingDetails.Update(
+                "Updated Manufacturer",
+                "Updated Category",
+                0.7,
+                12.0, 6.0, 3.0,
+                "cm",
+                map[string]string{
+                        "Color":    "Silver",
+                        "Material": "Metal",
+                        "Updated":  "True",
+                },
+        )
+
+        // Save updated product details
+        err = uc.productDetailRepo.UpdateDetails(ctx, existingDetails)
+        if err != nil </span><span class="cov8" title="1">{
+                return fmt.Errorf("failed to update product details: %v", err)
+        }</span>
+
+        // Publish an event to notify other components about product detail update
+        <span class="cov8" title="1">uc.mediator.Publish(ctx, mediator.Event{
+                Name:    "product.detail.updated",
+                Payload: existingDetails,
+        })
+
+        return nil</span>
+}
+
+// CreateDefaultProductDetails creates default product details for a given product
+func (uc *ProductDetailUseCase) CreateDefaultProductDetails(ctx context.Context, event mediator.Event) error <span class="cov8" title="1">{
+        // Extract product from event payload
+        product, ok := event.Payload.(*product.Product)
+        if !ok </span><span class="cov8" title="1">{
+                return fmt.Errorf("invalid payload type for product detail creation")
+        }</span>
+
+        // Create default product details
+        <span class="cov8" title="1">productDetail := product.CreateDefaultProductDetail()
+
+        // Save product details
+        err := uc.productDetailRepo.CreateDetails(ctx, productDetail)
+        if err != nil </span><span class="cov8" title="1">{
+                return fmt.Errorf("failed to create default product details: %v", err)
+        }</span>
+
+        // Publish an event to notify other components about product detail creation
+        <span class="cov8" title="1">uc.mediator.Publish(ctx, mediator.Event{
+                Name:    "product.detail.created",
+                Payload: productDetail,
+        })
+
+        return nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package usecase
+
+import (
+        "context"
+        "fmt"
+        "time"
+
+        "github.com/yourusername/mediator/example/domain/product"
+        "github.com/yourusername/mediator/example/repository"
+        "github.com/yourusername/mediator/pkg/mediator"
+)
+
+// ProductUseCase handles business logic for product-related operations
+type ProductUseCase struct {
+        productRepo       repository.ProductRepository
+        productDetailRepo repository.ProductDetailRepository
+        mediator          *mediator.Mediator
+}
+
+// NewProductUseCase creates a new ProductUseCase
+func NewProductUseCase(
+        productRepo repository.ProductRepository,
+        productDetailRepo repository.ProductDetailRepository,
+) *ProductUseCase <span class="cov8" title="1">{
+        return &amp;ProductUseCase{
+                productRepo:       productRepo,
+                productDetailRepo: productDetailRepo,
+                mediator:          mediator.GetMediator(),
+        }
+}</span>
+
+// CreateProduct creates a new product and publishes a creation event
+func (uc *ProductUseCase) CreateProduct(ctx context.Context, name, description string, price float64) (*product.Product, error) <span class="cov8" title="1">{
+        // Create product
+        newProduct := product.NewProduct(
+                fmt.Sprintf("product_%d", time.Now().UnixNano()),
+                name,
+                description,
+                price,
+        )
+
+        // Save product
+        err := uc.productRepo.Create(ctx, newProduct)
+        if err != nil </span><span class="cov8" title="1">{
+                return nil, err
+        }</span>
+
+        // Create product details
+        <span class="cov8" title="1">productDetail := newProduct.CreateDefaultProductDetail()
+        err = uc.productDetailRepo.CreateDetails(ctx, productDetail)
+        if err != nil </span><span class="cov8" title="1">{
+                return nil, err
+        }</span>
+
+        // Publish product creation event
+        <span class="cov8" title="1">uc.mediator.Publish(ctx, mediator.Event{
+                Name:    "product.created",
+                Payload: newProduct,
+        })
+
+        return newProduct, nil</span>
+}
+
+// UpdateProduct updates an existing product and publishes an update event
+func (uc *ProductUseCase) UpdateProduct(ctx context.Context, productID, name, description string, price float64) error <span class="cov8" title="1">{
+        // Find existing product
+        existingProduct, err := uc.productRepo.FindByID(ctx, productID)
+        if err != nil || existingProduct == nil </span><span class="cov8" title="1">{
+                return fmt.Errorf("product not found: %s", productID)
+        }</span>
+
+        // Update product
+        <span class="cov8" title="1">existingProduct.Update(name, description, price)
+
+        // Save updated product
+        err = uc.productRepo.Update(ctx, existingProduct)
+        if err != nil </span><span class="cov8" title="1">{
+                return err
+        }</span>
+
+        // Find existing product details
+        <span class="cov8" title="1">existingDetails, err := uc.productDetailRepo.FindByProductID(ctx, existingProduct.ID)
+        if err != nil </span><span class="cov8" title="1">{
+                return err
+        }</span>
+
+        // Update product details
+        <span class="cov8" title="1">existingDetails.Update(
+                "Updated Manufacturer",
+                "Updated Category",
+                0.7,
+                12.0, 6.0, 3.0,
+                "cm",
+                map[string]string{
+                        "Color":    "Silver",
+                        "Material": "Metal",
+                        "Updated":  "True",
+                },
+        )
+
+        // Publish product update event
+        return uc.mediator.Publish(ctx, mediator.Event{
+                Name:    "product.updated",
+                Payload: existingProduct,
+        })</span>
+}
+
+// HandleProductCreation handles product creation events
+func (uc *ProductUseCase) HandleProductCreation(ctx context.Context, event mediator.Event) error <span class="cov8" title="1">{
+        product, ok := event.Payload.(*product.Product)
+        if !ok </span><span class="cov8" title="1">{
+                return fmt.Errorf("invalid payload type for product creation")
+        }</span>
+
+        // Publish event for product detail creation
+        <span class="cov8" title="1">uc.mediator.Publish(ctx, mediator.Event{
+                Name:    "product.detail.create",
+                Payload: product,
+        })
+
+        return nil</span>
+}
+
+// HandleProductUpdate handles product update events
+func (uc *ProductUseCase) HandleProductUpdate(ctx context.Context, event mediator.Event) error <span class="cov8" title="1">{
+        //log.Info("[UPDATE PRODUCT]", event)
+        product, ok := event.Payload.(*product.Product)
+        if !ok </span><span class="cov8" title="1">{
+                return fmt.Errorf("invalid payload type for product update event")
+        }</span>
+
+        // Update product in repository
+        <span class="cov8" title="1">err := uc.productRepo.Update(ctx, product)
+        if err != nil </span><span class="cov8" title="1">{
+                return fmt.Errorf("failed to update product: %v", err)
+        }</span>
+
+        // Publish event for product detail update
+        <span class="cov8" title="1">uc.mediator.Publish(ctx, mediator.Event{
+                Name:    "product.update",
+                Payload: product,
+        })
+
+        return nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file2" style="display: none">package usecase
+
+import (
+        "context"
+        "fmt"
+        "time"
+
+        "github.com/yourusername/mediator/example/domain/product"
+        "github.com/yourusername/mediator/example/domain/sku"
+        "github.com/yourusername/mediator/example/repository"
+        "github.com/yourusername/mediator/pkg/mediator"
+)
+
+// SKUUseCase handles business logic for SKU-related operations
+type SKUUseCase struct {
+        skuRepo     repository.SKURepository
+        mediator    *mediator.Mediator
+}
+
+// NewSKUUseCase creates a new SKUUseCase
+func NewSKUUseCase(
+        skuRepo repository.SKURepository,
+) *SKUUseCase <span class="cov8" title="1">{
+        return &amp;SKUUseCase{
+                skuRepo:  skuRepo,
+                mediator: mediator.GetMediator(),
+        }
+}</span>
+
+// CreateSKU creates a new SKU for a product
+func (uc *SKUUseCase) CreateSKU(ctx context.Context, productID string, quantity int) (*sku.SKU, error) <span class="cov8" title="1">{
+        // Create SKU
+        newSKU := sku.NewSKU(
+                fmt.Sprintf("sku_%d", time.Now().UnixNano()),
+                productID,
+                quantity,
+        )
+
+        // Save SKU
+        err := uc.skuRepo.Create(ctx, newSKU)
+        if err != nil </span><span class="cov8" title="1">{
+                return nil, err
+        }</span>
+
+        // Publish SKU creation event
+        <span class="cov8" title="1">uc.mediator.Publish(ctx, mediator.Event{
+                Name:    "sku.created",
+                Payload: newSKU,
+        })
+
+        return newSKU, nil</span>
+}
+
+// HandleSKUCreation handles SKU creation events
+func (uc *SKUUseCase) HandleSKUCreation(ctx context.Context, event mediator.Event) error <span class="cov8" title="1">{
+        product, ok := event.Payload.(*product.Product)
+        if !ok </span><span class="cov8" title="1">{
+                return fmt.Errorf("invalid payload type for SKU creation")
+        }</span>
+
+        // Generate initial SKU for the product
+        <span class="cov8" title="1">_, err := uc.CreateSKU(ctx, product.ID, 100) // Default initial quantity
+        return err</span>
+}
+
+// UpdateSKU updates an existing SKU
+func (uc *SKUUseCase) UpdateSKU(ctx context.Context, skuID string, quantity int) error <span class="cov8" title="1">{
+        // Find existing SKU
+        skus, err := uc.skuRepo.FindByProductID(ctx, skuID)
+        if err != nil || len(skus) == 0 </span><span class="cov8" title="1">{
+                return fmt.Errorf("SKU not found: %s", skuID)
+        }</span>
+
+        <span class="cov8" title="1">existingSKU := skus[0]
+        existingSKU.Update(quantity)
+
+        // Save updated SKU
+        err = uc.skuRepo.Update(ctx, existingSKU)
+        if err != nil </span><span class="cov8" title="1">{
+                return err
+        }</span>
+
+        // Publish SKU update event
+        <span class="cov8" title="1">return uc.mediator.Publish(ctx, mediator.Event{
+                Name:    "sku.updated",
+                Payload: existingSKU,
+        })</span>
+}
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>
