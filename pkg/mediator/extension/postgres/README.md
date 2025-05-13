@@ -13,7 +13,7 @@ This extension provides a PostgreSQL implementation of the `EventStore` interfac
 ## Installation
 
 ```bash
-go get github.com/yourusername/mediator
+go get github.com/mandocaesar/mediator
 ```
 
 ## Dependencies
@@ -38,8 +38,8 @@ import (
 	"log"
 
 	_ "github.com/lib/pq"
-	"github.com/yourusername/mediator/pkg/mediator"
-	"github.com/yourusername/mediator/pkg/mediator/extension/postgres"
+	"github.com/mandocaesar/mediator/pkg/mediator"
+	"github.com/mandocaesar/mediator/pkg/mediator/extension/postgres"
 )
 
 func main() {

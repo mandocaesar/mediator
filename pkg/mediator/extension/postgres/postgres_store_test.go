@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"database/sql"
+	"os"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -111,10 +112,10 @@ func TestEventStore(t *testing.T) {
 // This test is skipped by default and can be enabled by setting the POSTGRES_TEST_DSN environment variable
 func TestWithRealDB(t *testing.T) {
 	// Skip this test unless explicitly enabled
-	dsn := "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable"
-	if dsn == "" {
+	if os.Getenv("POSTGRES_TEST_DSN") == "" {
 		t.Skip("Skipping PostgreSQL integration test. Set POSTGRES_TEST_DSN to enable.")
 	}
+	dsn := "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable"
 
 	// Connect to the database
 	db, err := sql.Open("postgres", dsn)

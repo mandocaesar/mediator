@@ -20,6 +20,24 @@ go get github.com/mandocaesar/mediator
 
 ## Quick Start
 
+## Testing & Development Workflow
+
+To ensure all dependencies are resolved correctly and all packages are tested consistently, always run tests from the project root directory. The repository provides a Makefile with common test commands. For example:
+
+```sh
+# Run all tests
+make test
+
+# Run all tests with verbose output
+make test-v
+
+# Run tests with coverage report
+make test-cover
+```
+
+> **Note:** Do not run tests from subdirectories or with nested go.mod files. Always use the root Makefile for best results.
+
+
 ```go
 package main
 

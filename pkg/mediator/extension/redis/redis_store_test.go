@@ -15,12 +15,12 @@ func setupTestRedis(t *testing.T) (*redis.Client, func()) {
 		t.Fatalf("Failed to start miniredis: %v", err)
 	}
 
-	client := redis.NewClient(&redis.Options{
+	rdb := redis.NewClient(&redis.Options{
 		Addr: mr.Addr(),
 	})
 
-	return client, func() {
-		client.Close()
+	return rdb, func() {
+		rdb.Close()
 		mr.Close()
 	}
 }

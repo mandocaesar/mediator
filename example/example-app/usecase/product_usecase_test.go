@@ -6,7 +6,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/mandocaesar/mediator/example/example-app/domain/product"
+	"example-app/domain/product"
+
 	"github.com/mandocaesar/mediator/pkg/mediator"
 )
 
@@ -82,7 +83,7 @@ func TestProductUseCase_CreateProduct(t *testing.T) {
 			inputName:      "Test Product",
 			inputDesc:      "Test Description",
 			inputPrice:     10.0,
-			wantErr:       false,
+			wantErr:        false,
 			checkPublished: true,
 		},
 		{
@@ -92,12 +93,12 @@ func TestProductUseCase_CreateProduct(t *testing.T) {
 					return errors.New("failed to create product")
 				},
 			},
-			detailRepo:    &mockProductDetailRepository{},
-			inputName:     "Test Product",
-			inputDesc:     "Test Description",
-			inputPrice:    10.0,
-			wantErr:      true,
-			errContains:  "failed to create product",
+			detailRepo:  &mockProductDetailRepository{},
+			inputName:   "Test Product",
+			inputDesc:   "Test Description",
+			inputPrice:  10.0,
+			wantErr:     true,
+			errContains: "failed to create product",
 		},
 		{
 			name: "detail repo error",
@@ -111,9 +112,9 @@ func TestProductUseCase_CreateProduct(t *testing.T) {
 					return errors.New("failed to create details")
 				},
 			},
-			inputName:    "Test Product",
-			inputDesc:    "Test Description",
-			inputPrice:   10.0,
+			inputName:   "Test Product",
+			inputDesc:   "Test Description",
+			inputPrice:  10.0,
 			wantErr:     true,
 			errContains: "failed to create details",
 		},
@@ -205,12 +206,12 @@ func TestProductUseCase_UpdateProduct(t *testing.T) {
 					return nil, nil
 				},
 			},
-			detailRepo:   &mockProductDetailRepository{},
+			detailRepo:  &mockProductDetailRepository{},
 			inputID:     "nonexistent_id",
 			inputName:   "New Name",
 			inputDesc:   "New Desc",
 			inputPrice:  10.0,
-			wantErr:    true,
+			wantErr:     true,
 			errContains: "product not found",
 		},
 		{
@@ -223,12 +224,12 @@ func TestProductUseCase_UpdateProduct(t *testing.T) {
 					return errors.New("failed to update")
 				},
 			},
-			detailRepo:   &mockProductDetailRepository{},
+			detailRepo:  &mockProductDetailRepository{},
 			inputID:     "test_id",
 			inputName:   "New Name",
 			inputDesc:   "New Desc",
 			inputPrice:  10.0,
-			wantErr:    true,
+			wantErr:     true,
 			errContains: "failed to update",
 		},
 		{
@@ -250,7 +251,7 @@ func TestProductUseCase_UpdateProduct(t *testing.T) {
 			inputName:   "New Name",
 			inputDesc:   "New Desc",
 			inputPrice:  10.0,
-			wantErr:    true,
+			wantErr:     true,
 			errContains: "failed to find details",
 		},
 	}
@@ -340,7 +341,7 @@ func TestProductUseCase_HandleProductUpdate(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name: "invalid payload",
+			name:        "invalid payload",
 			productRepo: &mockProductRepo{},
 			event: mediator.Event{
 				Name:    "product.updated",

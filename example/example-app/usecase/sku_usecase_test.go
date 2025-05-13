@@ -9,7 +9,7 @@ import (
 	"example-app/domain/product"
 	"example-app/domain/sku"
 
-	"mediator/pkg/mediator"
+	"github.com/mandocaesar/mediator/pkg/mediator"
 )
 
 // mockSKURepo is a mock implementation of SKURepository
