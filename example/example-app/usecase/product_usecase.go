@@ -79,29 +79,9 @@ func (uc *ProductUseCase) UpdateProduct(ctx context.Context, productID, name, de
 		return err
 	}
 
-	// Find existing product details
-	existingDetails, err := uc.productDetailRepo.FindByProductID(ctx, existingProduct.ID)
-	if err != nil {
-		return err
-	}
-
-	// Update product details
-	existingDetails.Update(
-		"Updated Manufacturer",
-		"Updated Category",
-		0.7,
-		12.0, 6.0, 3.0,
-		"cm",
-		map[string]string{
-			"Color":    "Silver",
-			"Material": "Metal",
-			"Updated":  "True",
-		},
-	)
-
 	// Publish product update event
 	return uc.mediator.Publish(ctx, mediator.Event{
-		Name:    "product.updated",
+		Name:    "product.update",
 		Payload: existingProduct,
 	})
 }
